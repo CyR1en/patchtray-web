@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://www.patchtray.io"><strong>Website</strong></a>
   ·
-  <a href="https://github.com/PatchTray/PatchTray/releases/latest"><strong>Download</strong></a>
+  <a href="https://www.patchtray.io/download"><strong>Download</strong></a>
   ·
   <a href="https://www.patchtray.io/guides"><strong>Guides</strong></a>
   ·
@@ -37,10 +37,11 @@ and Low Latency modes. VoiceMeeter Patch Inserts are an optional
 expanded multichannel workflow. Processing can continue while the application
 is minimized to the Windows system tray.
 
-The public release repository contains downloads, updater metadata, approved
-media assets, and issue tracking:
+Installers and updater metadata are served from the PatchTray download service.
+The public release repository carries release notes, approved media assets, and
+issue tracking:
 
-- [PatchTray releases](https://github.com/PatchTray/PatchTray/releases/latest)
+- [Download PatchTray for Windows](https://download.patchtray.io/PatchTrayInstaller.exe)
 - [PatchTray public repository](https://github.com/PatchTray/PatchTray)
 - [Getting started](https://www.patchtray.io/guides/build-your-first-vst3-chain)
 - [Support](https://www.patchtray.io/support)

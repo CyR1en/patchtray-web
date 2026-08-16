@@ -1,10 +1,12 @@
 /**
- * Serves the published `latest.json` to the browser.
+ * Serves the published stable-channel installer feed to the browser.
  *
- * GitHub release assets are returned without CORS headers, so the site cannot
- * read the manifest directly. This function fetches it server-side and lets the
- * Vercel edge cache absorb the traffic (5 min fresh, stale served for a day
- * while it revalidates).
+ * The download service returns the feed without CORS headers, so the site
+ * cannot read the manifest directly. This function fetches it server-side and
+ * lets the Vercel edge cache absorb the traffic (5 min fresh, stale served for
+ * a day while it revalidates). The feed itself is `no-store`, since the
+ * launcher must always see the current pointer; the site only needs a version
+ * number, so caching it at the edge here is safe.
  *
  * Plain JavaScript on purpose: Vercel compiles `api/*.ts` with the project's
  * own `typescript`, and TypeScript 7 dropped the classic JS compiler API that
@@ -17,7 +19,7 @@
  * configured fallback either way. Keep this URL in step with
  * `LATEST_MANIFEST_URL` there.
  */
-const LATEST_MANIFEST_URL = "https://github.com/PatchTray/PatchTray/releases/latest/download/latest.json";
+const LATEST_MANIFEST_URL = "https://download.patchtray.io/installer/v1/manifest.json";
 
 export default async function handler(_request, response) {
   response.setHeader("Content-Type", "application/json; charset=utf-8");

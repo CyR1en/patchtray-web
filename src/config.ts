@@ -10,6 +10,8 @@
  * not — they are fixed by `src/lib/routes.ts`, and an env override pointing one
  * elsewhere would leave the real route live as a second source of truth.
  */
+import { INSTALLER_DOWNLOAD_URL } from "./lib/release";
+
 function env(key: keyof ImportMetaEnv, fallback = ""): string {
   const value = import.meta.env[key];
   return typeof value === "string" ? value.trim() : fallback;
@@ -29,13 +31,17 @@ export const siteConfig = {
   siteOrigin: env("VITE_SITE_ORIGIN", "https://www.patchtray.io").replace(/\/+$/, ""),
 
   /**
-   * Version and installer link are read live from the release manifest — see
-   * `src/lib/release.ts` and `useLatestRelease()`. These two values are only the
-   * fallback for when the release page cannot be reached.
+   * The version is read live from the release manifest — see
+   * `src/lib/release.ts` and `useLatestRelease()`. This value is only the
+   * fallback for when the manifest cannot be reached.
    */
   releaseVersion: env("VITE_RELEASE_VERSION", "0.1.0"),
-  downloadUrl: env("VITE_DOWNLOAD_URL"),
-  /** Where the browser reads the manifest from; `/api/release` proxies GitHub (no CORS on release assets). */
+  /**
+   * The evergreen installer, which never changes with a release. Overridable so
+   * a deployment can point elsewhere, or blank it to render the pending state.
+   */
+  downloadUrl: env("VITE_DOWNLOAD_URL", INSTALLER_DOWNLOAD_URL),
+  /** Where the browser reads the manifest from; `/api/release` proxies the download service (no CORS on the feed). */
   releaseManifestUrl: env("VITE_RELEASE_MANIFEST_URL", "/api/release"),
 
   releaseState: env("VITE_RELEASE_STATE", "public beta"),

@@ -6,27 +6,28 @@ import { parseLatestRelease, type LatestRelease } from "../lib/release";
  * Live release metadata, shared by every component that shows a version or the
  * download link.
  *
- * Resolution order, most trusted first:
+ * Version resolution order, most trusted first:
  *   1. `/api/release` — the manifest as published right now (fetched once per page load).
  *   2. `__RELEASE_MANIFEST__` — the same manifest, captured at build time by `vite.config.ts`.
  *      Renders correct values on first paint, so a live refresh is usually a no-op.
- *   3. `VITE_RELEASE_VERSION` / `VITE_DOWNLOAD_URL` — fallback when the release page is
- *      unreachable. An empty download url keeps the honest pending UI.
+ *   3. `VITE_RELEASE_VERSION` — fallback when the manifest is unreachable.
+ *
+ * The download link is not part of that chain: the installer is evergreen, so
+ * it comes straight from config. An empty one keeps the honest pending UI.
  *
  * The store is module-level rather than context so the fetch happens once no
  * matter how many components read it.
  */
-const configFallback: LatestRelease = {
-  version: siteConfig.releaseVersion,
-  downloadUrl: siteConfig.downloadUrl,
-};
+export type ReleaseView = LatestRelease & { downloadUrl: string };
+
+const configFallback: LatestRelease = { version: siteConfig.releaseVersion };
 
 let snapshot: LatestRelease = parseLatestRelease(__RELEASE_MANIFEST__) ?? configFallback;
 let started = false;
 const listeners = new Set<() => void>();
 
 function publish(next: LatestRelease) {
-  if (next.version === snapshot.version && next.downloadUrl === snapshot.downloadUrl) return;
+  if (next.version === snapshot.version) return;
   snapshot = next;
   for (const listener of listeners) listener();
 }
@@ -49,7 +50,7 @@ function start() {
       if (release) publish(release);
     })
     .catch(() => {
-      /* Offline or the release page is down: keep the build-time / configured values. */
+      /* Offline or the download service is down: keep the build-time / configured values. */
     });
 }
 
@@ -61,6 +62,7 @@ function subscribe(listener: () => void) {
   };
 }
 
-export function useLatestRelease(): LatestRelease {
-  return useSyncExternalStore(subscribe, () => snapshot, () => snapshot);
+export function useLatestRelease(): ReleaseView {
+  const release = useSyncExternalStore(subscribe, () => snapshot, () => snapshot);
+  return { version: release.version, downloadUrl: siteConfig.downloadUrl };
 }
